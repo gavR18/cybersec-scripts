@@ -48,8 +48,9 @@ echo "Output to be saved at: $OUTPUT_FILE"
 read -p "Press enter to proceed or Ctrl+C to cancel: " CONFIRMATION
 
 if [ -z "$CONFIRMATION" ]; then
+  echo "========================================================="
   echo "[+] Scanning $TARGET with options: $SCAN_OPTIONS"
-  echo "Output saved in $OUTPUT_FILE"
+  echo "Please wait...."
   {
   echo ""
   echo "========================================================="
@@ -64,3 +65,8 @@ else
   echo "Scan aborted"
   exit 1
 fi
+
+# Confirmation complete
+echo ""
+echo "[+] Scan completed and saved to $OUTPUT_FILE"
+echo ""
