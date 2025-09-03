@@ -42,12 +42,18 @@ if [ -z "$OUTPUT_FILE" ]; then
 fi
 
 # Confirm options and proceed or exit
+echo ""
+echo "========================================================="
 echo "Selected target/s: $TARGET"
+echo ""
 echo "Scan Options: $SCAN_OPTIONS"
+echo ""
 echo "Output to be saved at: $OUTPUT_FILE"
+echo ""
 read -p "Press enter to proceed or Ctrl+C to cancel: " CONFIRMATION
 
 if [ -z "$CONFIRMATION" ]; then
+  echo ""
   echo "========================================================="
   echo "[+] Scanning $TARGET with options: $SCAN_OPTIONS"
   echo "Please wait...."
