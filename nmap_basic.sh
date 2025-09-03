@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "================================"
+echo "========================================================="
 echo "Basic Enumeration Script Running"
 echo "++ GR Sept 2025 ++"
 echo ""
@@ -52,12 +52,13 @@ if [ -z "$CONFIRMATION" ]; then
   echo "Output saved in $OUTPUT_FILE"
   {
   echo ""
-  echo "================================"
+  echo "========================================================="
   echo "nmap $SCAN_OPTIONS $TARGET"
   echo "Performed on $(date)"
-  echo "================================"
+  echo "========================================================="
   nmap $SCAN_OPTIONS $TARGET
-  echo "============= END ================"
+  echo "======================== END =============================="
+  echo ""
   } >> "$OUTPUT_FILE"
 else
   echo "Scan aborted"
