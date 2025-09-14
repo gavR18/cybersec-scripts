@@ -4,6 +4,8 @@
 # Version: 1.0
 # Description: This script performs network scanning using nmap followed by a web enumeration using dirb if port 80 is open.
 
+import time
+import threading
 import datetime
 import subprocess
 import ipaddress
@@ -19,14 +21,16 @@ def validate_ip(TARGET):
 
 def main():
     # Welcome message
-    print("Welcome to the Web Enumeration Script")
     print("=====================================")  
-    print("Scan requires correct permissions to run OS detection\n")
+    print("Welcome to the Web Enumeration Script")
+    print("Scan requires correct permissions to run OS detection")
+    print("=====================================")  
+   
     
     
     # Get user input for target and validate
     while True:
-        TARGET = input("Enter the target IP address or network: ").strip()
+        TARGET = input("\nEnter the target IP address or network: ").strip()
         if validate_ip(TARGET):
             break # Exit if IP is valid
         else:
@@ -55,8 +59,8 @@ def main():
 
 ===== Nmap Scan Results =====
         """)
-        
-    # Run nmap scan
+              
+    # nmap scan
     nmap_commands = [
         "nmap",
         "-O",               # OS detection
@@ -68,8 +72,32 @@ def main():
         "-oG", GNMAP_OUTPUT,# Grepable output (used for Dirb)
     ]
     try:
-        print("Running Nmap scan . . . ")
+        # Timer setup
+        def live_timer(stop_event):
+            start_time = time.time()
+            while not stop_event.is_set():
+                elapsed = time.time() - start_time
+                print(f"\rElapsed time: {elapsed:.1f} seconds", end='', flush=True)
+                time.sleep(5)
+            print(f"\rScan completed in {elapsed:.1f} seconds{' ' * 20}")
+        
+        # Start timer
+        stop_timer = threading.Event()
+        timer_thread = threading.Thread(target=live_timer, args=(stop_timer,))
+        timer_thread.start()
+        
+        # Run nmap
         nmap_result = subprocess.run(nmap_commands, capture_output=True, text=True, timeout=1800)
+        
+        # Stop timer
+        stop_timer.set()
+        timer_thread.join()
+                
+        # Print nmap output to CLI
+        print("Running Nmap scan . . . \n")
+        print("===== NMAP SCAN RESULTS =====\n")
+        print(nmap_result.stdout)
+        print(nmap_result.stderr)
         
         # Append results to Full Report
         with open(FULL_REPORT, 'a') as report:
@@ -107,6 +135,7 @@ def main():
         # Nmap fails to run with returned code
         else:
             print(f"\n Nmap scan failed with return code {nmap_result.returncode}")
+    
     # Nmap timeout
     except subprocess.TimeoutExpired:
         print("\n++ Nmap Scan Timeout after 30 minutes ++")
