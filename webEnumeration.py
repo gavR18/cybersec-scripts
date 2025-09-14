@@ -12,7 +12,7 @@ import os
 # Validate input is a valid IP address
 def validate_ip(TARGET):
     try:
-        ipaddress.ip_address(TARGET)
+        ipaddress.ip_network(TARGET, strict=False)
         return True
     except ValueError:
         return False
@@ -21,6 +21,8 @@ def main():
     # Welcome message
     print("Welcome to the Web Enumeration Script")
     print("=====================================")  
+    print("Scan requires correct permissions to run OS detection\n")
+    
     
     # Get user input for target and validate
     while True:
@@ -32,13 +34,13 @@ def main():
     # Get user input for output file name and set extensions
     OUTPUT_UFILE = input("Enter the output file name (without extension): ").strip()
     RUN_DATE = datetime.datetime.now().strftime("%Y%m%d")
-    OUTPUT_FILE = os.path.splitext(OUTPUT_UFILE)[0] + RUN_DATE # Remove any existing extension and add date
+    OUTPUT_FILE = os.path.splitext(OUTPUT_UFILE)[0] + "_" + RUN_DATE # Remove any existing extension and add date
     FULL_REPORT = f"{OUTPUT_FILE}_full_report_.txt" 
     NMAP_OUTPUT = f"{OUTPUT_FILE}_nmap.nmap"
     GNMAP_OUTPUT = f"{OUTPUT_FILE}_nmap.gnmap"
     DIRB_OUTPUT = f"{OUTPUT_FILE}_dirb.txt"
     print("=====================================")
-    print(f"Scanning target {TARGET}, please wait...")
+    print(f"Scanning target {TARGET}, please wait...\n")
     # Start Report
     with open(FULL_REPORT, 'w') as report:
         report.write(f"""
@@ -112,7 +114,7 @@ def main():
         print(f"++ An error has occurred: {e} ")
         
     print("=====================================")
-    print("Scan completed! Results saved to:")
+    print("\nScan completed! Results saved to:")
     print(f"  Full Report: {FULL_REPORT}")
     print(f"  Nmap Output: {NMAP_OUTPUT}")
     print(f"  Grepable Output: {GNMAP_OUTPUT}")
@@ -122,6 +124,12 @@ def main():
 if __name__ == "__main__":
     main()
     
+    
+                    
+
+    
+    
+
     
                     
 
