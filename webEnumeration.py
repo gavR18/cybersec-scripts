@@ -78,7 +78,7 @@ def main():
             while not stop_event.is_set():
                 elapsed = time.time() - start_time
                 print(f"\rElapsed time: {elapsed:.1f} seconds", end='', flush=True)
-                time.sleep(5)
+                time.sleep(1)
             print(f"\rScan completed in {elapsed:.1f} seconds{' ' * 20}")
         
         # Start timer
@@ -106,7 +106,7 @@ def main():
                 report.write(f"\nNmap Output:\n{nmap_result.stdout}\n")
             if nmap_result.stderr:
                 report.write(f"\nNmap Errors:\n{nmap_result.stderr}\n")
-            report.write("===== END NMAP OUTPUT =====")
+            report.write("===== END NMAP OUTPUT =====\n")
         
         # Success namp scan, checks for Port 80 in GNMAP
         if nmap_result.returncode == 0:
@@ -115,19 +115,26 @@ def main():
             with open(GNMAP_OUTPUT, 'r') as gn:
                 gnmap_content = gn.read()
                 if "80/open" in gnmap_content:
+                    # Start dirb timer
+                    stopDirb_timer = threading.Event()
+                    timerDirb_thread = threading.Thread(target=live_timer, args=(stopDirb_timer,))
+                    timerDirb_thread.start()
+                    
                     print("\nIdentified Service with Port 80 open. Starting Dirb scan . . .\n")
                     
                     # Run dirb scan
-                    dirb_result = subprocess.run(["dirb", f"http://{TARGET}", "-o", DIRB_OUTPUT], capture_output=True, text=True, timeout=1800)
-                    
+                    dirb_result = subprocess.run(["dirb", f"http://{TARGET}", "-o", DIRB_OUTPUT, "-S", "-N"], capture_output=False, timeout=1800)
+                
+                    # Stop Dirb timer    
+                    stopDirb_timer.set()
+                    timerDirb_thread.join()
+                                        
                     # Append to Full Report
                     with open(FULL_REPORT, 'a') as report:
                         report.write("===== Dirb Results =====\n")
-                        if dirb_result.stdout:
-                            report.write(f"\nDirb Output:\n{dirb_result.stdout}\n")
-                        if dirb_result.stderr:
-                            report.write(f"\nDirb Errors\n{dirb_result.stderr}\n")
+                        report.write(f"Dirb results saved to: {DIRB_OUTPUT}\n")
                         report.write("===== END DIRB OUTPUT =====")
+
                 else:
                     print("\nPort 80 was not identified as open, Dirb not run")
                     with open(FULL_REPORT, 'a') as report:
