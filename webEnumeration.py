@@ -37,7 +37,6 @@ def main():
             print("Invalid IP address. Please try again.")
     # Get user input for output file name and set extensions
     OUTPUT_UFILE = input("Enter the output file name (without extension): ").strip()
-    OUTPUT_ULFILE = OUT
     RUN_DATE = datetime.datetime.now().strftime("%Y%m%d")
     OUTPUT_FILE = os.path.splitext(OUTPUT_UFILE)[0] + "_" + RUN_DATE # Remove any existing extension and add date
     FULL_REPORT = f"{OUTPUT_FILE}_full_report_.txt" 
