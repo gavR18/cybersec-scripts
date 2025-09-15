@@ -37,6 +37,7 @@ def main():
             print("Invalid IP address. Please try again.")
     # Get user input for output file name and set extensions
     OUTPUT_UFILE = input("Enter the output file name (without extension): ").strip()
+    OUTPUT_ULFILE = OUT
     RUN_DATE = datetime.datetime.now().strftime("%Y%m%d")
     OUTPUT_FILE = os.path.splitext(OUTPUT_UFILE)[0] + "_" + RUN_DATE # Remove any existing extension and add date
     FULL_REPORT = f"{OUTPUT_FILE}_full_report_.txt" 
@@ -123,22 +124,31 @@ def main():
                     print("\nIdentified Service with Port 80 open. Starting Dirb scan . . .\n")
                     
                     # Run dirb scan
-                    dirb_result = subprocess.run(["dirb", f"http://{TARGET}", "-o", DIRB_OUTPUT, "-S", "-N"], capture_output=False, timeout=1800)
+                    dirb_result = subprocess.run(["dirb", f"http://{TARGET}", "-o", DIRB_OUTPUT, "-S"], capture_output=True, timeout=1800)
                 
                     # Stop Dirb timer    
                     stopDirb_timer.set()
                     timerDirb_thread.join()
                                         
-                    # Append to Full Report
+                    # Append to Full Report only positive findings
                     with open(FULL_REPORT, 'a') as report:
                         report.write("===== Dirb Results =====\n")
                         report.write(f"Dirb results saved to: {DIRB_OUTPUT}\n")
+                        if os.path.exists(DIRB_OUTPUT) and dirb_result.returncode == 0:
+                            with open(DIRB_OUTPUT, 'r') as dirb_file:
+                                for line in dirb_file:
+                                    if "+ " in line:
+                                        report.write(line)
+                        else:
+                            report.write(f"Dirb failed and returned error code: {dirb_result.returncode}\n")
+                            if dirb_result.stderr:
+                                report.write(f"Error: {dirb_result.stderr}\n")
                         report.write("===== END DIRB OUTPUT =====")
 
                 else:
                     print("\nPort 80 was not identified as open, Dirb not run")
                     with open(FULL_REPORT, 'a') as report:
-                        report.write("===== Port 80 closed, Dirb skipped =====")
+                        report.write("===== Port 80 closed, Dirb skipped =====\n")
         # Nmap fails to run with returned code
         else:
             print(f"\n Nmap scan failed with return code {nmap_result.returncode}")
