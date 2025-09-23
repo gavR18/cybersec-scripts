@@ -87,7 +87,7 @@ def main():
         timer_thread.start()
         
         # Run nmap
-        nmap_result = subprocess.run(nmap_commands, capture_output=True, text=True, timeout=1800)
+        nmap_result = subprocess.run(nmap_commands, capture_output=True, text=True)
         
         # Stop timer
         stop_timer.set()
